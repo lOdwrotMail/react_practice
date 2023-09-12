@@ -1,3 +1,10 @@
 iframe {
   display: none;
 }
+
+.is-active{
+  background-color: #a3ebdd93;
+  border-radius: 5px;
+  padding: 10px;
+  outline: 2px solid darken(#a3ebdd93, 40);
+}
