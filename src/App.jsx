@@ -21,6 +21,7 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [userFilter, setUserFilter] = useState(0);
+  const [search, setSearch] = useState('');
 
   const willProductsFiltered = () => {
     let productsFiltered = products;
@@ -31,7 +32,19 @@ export const App = () => {
       );
     }
 
+    if (search.length > 0) {
+      productsFiltered = productsFiltered.filter(
+        product => product.name.toLocaleLowerCase().includes(
+          search.toLocaleLowerCase(),
+        ),
+      );
+    }
+
     return productsFiltered;
+  };
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
   };
 
   return (
@@ -73,7 +86,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={search}
+                  onChange={handleSearchChange}
                 />
 
                 <span className="icon is-left">
@@ -82,11 +96,15 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
+                  { search !== ''
+                    && (
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => (setSearch(''))}
+                    />
+                    )}
                 </span>
               </p>
             </div>
@@ -148,88 +166,92 @@ export const App = () => {
           <p data-cy="NoMatchingMessage">
             No products matching selected criteria
           </p>
+          {!!willProductsFiltered().length
+              && (
+              <table
+                data-cy="ProductTable"
+                className="table is-striped is-narrow is-fullwidth"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        ID
 
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Product
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i
+                              data-cy="SortIcon"
+                              className="fas fa-sort-down"
+                            />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Category
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort-up" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        User
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
-              </tr>
-            </thead>
+                    </th>
+                  </tr>
+                </thead>
 
-            <tbody>
-              {willProductsFiltered().map(product => (
-                <tr data-cy="Product" key={product.id}>
-                  <td className="has-text-weight-bold" data-cy="ProductId">
-                    {product.id}
-                  </td>
+                <tbody>
+                  {willProductsFiltered().map(product => (
+                    <tr data-cy="Product" key={product.id}>
+                      <td className="has-text-weight-bold" data-cy="ProductId">
+                        {product.id}
+                      </td>
 
-                  <td data-cy="ProductName">{product.name}</td>
-                  <td data-cy="ProductCategory">
-                    {`${product.category.icon} - ${product.category.title}`}
-                  </td>
+                      <td data-cy="ProductName">{product.name}</td>
+                      <td data-cy="ProductCategory">
+                        {`${product.category.icon} - ${product.category.title}`}
+                      </td>
 
-                  <td
-                    data-cy="ProductUser"
-                    className={cn({
-                      'has-text-link': product.user.sex === 'm',
-                      'has-text-danger': product.user.sex === 'f',
-                    })}
-                  >
-                    {product.user.name}
-                  </td>
-                </tr>
-              ))}
+                      <td
+                        data-cy="ProductUser"
+                        className={cn({
+                          'has-text-link': product.user.sex === 'm',
+                          'has-text-danger': product.user.sex === 'f',
+                        })}
+                      >
+                        {product.user.name}
+                      </td>
+                    </tr>
+                  ))}
 
-              {/* <tr data-cy="Product">
+                  {/* <tr data-cy="Product">
               <td className="has-text-weight-bold" data-cy="ProductId">
                 1
               </td>
@@ -276,8 +298,9 @@ export const App = () => {
                 Roma
               </td>
             </tr> */}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+              )}
         </div>
       </div>
     </div>
