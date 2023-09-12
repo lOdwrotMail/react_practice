@@ -14,7 +14,7 @@ export const Product = ({ product }) => {
 
       <td
         data-cy="ProductUser"
-        className="has-text-link"
+        className={user.sex === 'm' ? 'has-text-link' : 'has-text-danger'}
       >
         {user.name}
       </td>

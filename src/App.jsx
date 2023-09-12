@@ -15,27 +15,53 @@ const products = productsFromServer.map((product) => {
   return { ...product, category, user };
 });
 
-const filterProducts = () => products;
+export const App = () => {
+  const [nameFilter, setNameFilter] = React.useState('');
+  const [categoryFilter, setCategoryFilter] = React.useState(-1);
+  const [userFilter, setUserFilter] = React.useState(-1);
 
-export const App = () => (
-  <div className="section">
-    <div className="container">
-      <h1 className="title">Product Categories</h1>
+  const filterProducts = products.filter((product) => {
+    const searchPattern = new RegExp(nameFilter.trim(), 'i');
 
-      <div className="block">
-        <Filters categories={categoriesFromServer} users={usersFromServer} />
-      </div>
+    return product.name.search(searchPattern) > -1;
+  }).filter(({ category }) => categoryFilter === -1
+    || category.id === categoryFilter)
+    .filter(({ user }) => userFilter === -1
+    || user.id === userFilter);
 
-      <div className="box table-container">
-        {products.length === 0
-          ? (
-            <p data-cy="NoMatchingMessage">
-              No products matching selected criteria
-            </p>
-          )
-          : <ProductTable products={filterProducts()} />}
+  return (
+    <div className="section">
+      <div className="container">
+        <h1 className="title">Product Categories</h1>
 
+        <div className="block">
+          <Filters
+            categories={categoriesFromServer}
+            users={usersFromServer}
+            set={{
+              name: setNameFilter,
+              category: setCategoryFilter,
+              user: setUserFilter,
+            }}
+            get={{
+              name: nameFilter,
+              category: categoryFilter,
+              user: userFilter,
+            }}
+          />
+        </div>
+
+        <div className="box table-container">
+          {filterProducts.length === 0
+            ? (
+              <p data-cy="NoMatchingMessage">
+                No products matching selected criteria
+              </p>
+            )
+            : <ProductTable products={filterProducts} />}
+
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
