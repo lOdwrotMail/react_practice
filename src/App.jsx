@@ -106,12 +106,16 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                    onClick={() => setQuery('')}
-                  />
+                  {query.length > 0
+                    && (
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                    )
+                  }
                 </span>
               </p>
             </div>
@@ -181,59 +185,59 @@ export const App = () => {
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
           >
-            {visibleProducts.length === 0
+            {visibleProducts.length !== 0
               && (
-              <thead>
-                <tr>
-                  <th>
-                    <span className="is-flex is-flex-wrap-nowrap">
-                      ID
+                <thead>
+                  <tr>
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        ID
 
-                      <a href="#/">
-                        <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort" />
-                        </span>
-                      </a>
-                    </span>
-                  </th>
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
+                      </span>
+                    </th>
 
-                  <th>
-                    <span className="is-flex is-flex-wrap-nowrap">
-                      Product
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Product
 
-                      <a href="#/">
-                        <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort-down" />
-                        </span>
-                      </a>
-                    </span>
-                  </th>
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort-down" />
+                          </span>
+                        </a>
+                      </span>
+                    </th>
 
-                  <th>
-                    <span className="is-flex is-flex-wrap-nowrap">
-                      Category
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Category
 
-                      <a href="#/">
-                        <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort-up" />
-                        </span>
-                      </a>
-                    </span>
-                  </th>
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort-up" />
+                          </span>
+                        </a>
+                      </span>
+                    </th>
 
-                  <th>
-                    <span className="is-flex is-flex-wrap-nowrap">
-                      User
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        User
 
-                      <a href="#/">
-                        <span className="icon">
-                          <i data-cy="SortIcon" className="fas fa-sort" />
-                        </span>
-                      </a>
-                    </span>
-                  </th>
-                </tr>
-              </thead>
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
               )
             }
 
