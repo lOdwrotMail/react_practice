@@ -32,6 +32,7 @@ export const App = () => {
   const handleDefaultUserFilter = () => {
     setSelectedUser(null);
     setVisibleProducts(products);
+    setNameFilter('');
   };
 
   const filteredProducts = visibleProducts.filter(product => product.name.toLowerCase().includes(nameFilter.toLowerCase().trim()));
@@ -57,7 +58,7 @@ export const App = () => {
                   ? 'is-active'
                   : ''
                 }
-                onClick={() => handleDefaultUserFilter}
+                onClick={handleDefaultUserFilter}
               >
                 All
               </a>
@@ -156,6 +157,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleDefaultUserFilter}
               >
                 Reset all filters
               </a>
@@ -164,9 +166,14 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {visibleProducts.length === 0
+            ? (
+              <p data-cy="NoMatchingMessage">
+                No products matching selected criteria
+              </p>
+            )
+            : undefined
+          }
 
           <table
             data-cy="ProductTable"
