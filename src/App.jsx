@@ -21,6 +21,7 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   const filterList = () => {
     let productCopy = [...products];
@@ -28,6 +29,12 @@ export const App = () => {
     if (selectedUser !== '') {
       productCopy = productCopy
         .filter(product => product.user.name === selectedUser);
+    }
+
+    if (inputValue !== '') {
+      productCopy = productCopy
+        .filter(product => product.name.toLowerCase()
+          .includes(inputValue.toLowerCase().trim()));
     }
 
     return productCopy;
@@ -82,21 +89,25 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={inputValue}
+                  onChange={event => setInputValue(event.target.value)}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
+                {inputValue === '' || (
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setInputValue('')}
                   />
                 </span>
+                )}
               </p>
             </div>
 
