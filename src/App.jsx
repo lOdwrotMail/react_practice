@@ -19,6 +19,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [visibleProducts, setVisibleProducts] = useState(products);
+  const [nameFilter, setNameFilter] = useState('');
 
   const handleUserFilter = (id) => {
     setSelectedUser(id);
@@ -31,6 +32,12 @@ export const App = () => {
   const handleDefaultUserFilter = () => {
     setSelectedUser(null);
     setVisibleProducts(products);
+  };
+
+  const filteredProducts = visibleProducts.filter(product => product.name.toLowerCase().includes(nameFilter.toLowerCase().trim()));
+
+  const handleNameFilter = (event) => {
+    setNameFilter(event.target.value);
   };
 
   return (
@@ -78,7 +85,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={nameFilter}
+                  onChange={handleNameFilter}
                 />
 
                 <span className="icon is-left">
@@ -87,11 +95,17 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
+                  {nameFilter !== ''
+                    ? (
+                      <button
+                        data-cy="ClearButton"
+                        type="button"
+                        className="delete"
+                        onClick={() => setNameFilter('')}
+                      />
+                    )
+                    : undefined
+                  }
                 </span>
               </p>
             </div>
@@ -211,7 +225,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {visibleProducts.map(product => (
+              {filteredProducts.map(product => (
                 <tr
                   data-cy="Product"
                   key={product.id}
