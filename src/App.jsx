@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import "./App.scss";
-import cn from "classnames";
+import React, { useState } from 'react';
+import './App.scss';
+import cn from 'classnames';
 
-import usersFromServer from "./api/users";
-import categoriesFromServer from "./api/categories";
-import productsFromServer from "./api/products";
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 const products = productsFromServer.map((product) => {
   const productCategory = categoriesFromServer.find(
-    (category) => category.id === product.categoryId
+    category => category.id === product.categoryId,
   );
   const productUser = usersFromServer.find(
-    (user) => user.id === productCategory.ownerId
+    user => user.id === productCategory.ownerId,
   );
 
   return {
@@ -22,14 +22,14 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState('');
 
   const handleUserClick = (userId) => {
     setSelectedUser(userId);
   };
 
   const filteredProducts = selectedUser
-    ? products.filter((product) => product.user.id === selectedUser)
+    ? products.filter(product => product.user.id === selectedUser)
     : products;
 
   return (
@@ -48,11 +48,11 @@ export const App = () => {
                 className={cn({
                   'is-active': !selectedUser,
                 })}
-                onClick={() => handleUserClick("")}
+                onClick={() => handleUserClick('')}
               >
                 All
               </a>
-              {usersFromServer.map((user) => (
+              {usersFromServer.map(user => (
                 <a
                   data-cy="FilterUser"
                   href="#/"
@@ -195,7 +195,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {filteredProducts.map((product) => (
+              {filteredProducts.map(product => (
                 <tr data-cy="Product" key={product.id}>
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}
@@ -205,15 +205,18 @@ export const App = () => {
                   <td data-cy="ProductCategory">
                     <span role="img" aria-label="Category Icon">
                       {product.category.icon}
-                    </span>{" "}
-                    - {product.category.title}
+                    </span>
+                    {' '}
+                    -
+                    {' '}
+                    {product.category.title}
                   </td>
 
                   <td
                     data-cy="ProductUser"
                     className={cn({
-                      "has-text-link": product.user.sex === "m",
-                      "has-text-danger": product.user.sex === "f",
+                      'has-text-link': product.user.sex === 'm',
+                      'has-text-danger': product.user.sex === 'f',
                     })}
                   >
                     {product.user.name}
