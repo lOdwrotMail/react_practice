@@ -45,90 +45,95 @@ export const List = ({ products, pickedUser, query }) => {
         .toLowerCase().includes(query.trim().toLowerCase()));
   }
 
-  return (
-    <table
-      data-cy="ProductTable"
-      className="table is-striped is-narrow is-fullwidth"
-    >
-      <thead>
-        <tr>
-          <th>
-            <span className="is-flex is-flex-wrap-nowrap">
-              ID
+  if (visibleList.length > 0) {
+    return (
 
-              <a href="#/" onClick={() => sortBy('id')}>
-                <span className="icon">
-                  <i data-cy="SortIcon" className="fas fa-sort" />
-                </span>
-              </a>
-            </span>
-          </th>
+      <table
+        data-cy="ProductTable"
+        className="table is-striped is-narrow is-fullwidth"
+      >
+        <thead>
+          <tr>
+            <th>
+              <span className="is-flex is-flex-wrap-nowrap">
+                ID
 
-          <th>
-            <span className="is-flex is-flex-wrap-nowrap">
-              Product
+                <a href="#/" onClick={() => sortBy('id')}>
+                  <span className="icon">
+                    <i data-cy="SortIcon" className="fas fa-sort" />
+                  </span>
+                </a>
+              </span>
+            </th>
 
-              <a href="#/" onClick={() => sortBy('product')}>
-                <span className="icon">
-                  <i data-cy="SortIcon" className="fas fa-sort-down" />
-                </span>
-              </a>
-            </span>
-          </th>
+            <th>
+              <span className="is-flex is-flex-wrap-nowrap">
+                Product
 
-          <th>
-            <span className="is-flex is-flex-wrap-nowrap">
-              Category
+                <a href="#/" onClick={() => sortBy('product')}>
+                  <span className="icon">
+                    <i data-cy="SortIcon" className="fas fa-sort-down" />
+                  </span>
+                </a>
+              </span>
+            </th>
 
-              <a href="#/" onClick={() => sortBy('category')}>
-                <span className="icon">
-                  <i data-cy="SortIcon" className="fas fa-sort-up" />
-                </span>
-              </a>
-            </span>
-          </th>
+            <th>
+              <span className="is-flex is-flex-wrap-nowrap">
+                Category
 
-          <th>
-            <span className="is-flex is-flex-wrap-nowrap">
-              User
+                <a href="#/" onClick={() => sortBy('category')}>
+                  <span className="icon">
+                    <i data-cy="SortIcon" className="fas fa-sort-up" />
+                  </span>
+                </a>
+              </span>
+            </th>
 
-              <a href="#/" onClick={() => sortBy('user')}>
-                <span className="icon">
-                  <i data-cy="SortIcon" className="fas fa-sort" />
-                </span>
-              </a>
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {visibleList.map(product => (
-          <React.Fragment key={product.product.id}>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                {product.product.id}
-                {' '}
+            <th>
+              <span className="is-flex is-flex-wrap-nowrap">
+                User
 
-              </td>
+                <a href="#/" onClick={() => sortBy('user')}>
+                  <span className="icon">
+                    <i data-cy="SortIcon" className="fas fa-sort" />
+                  </span>
+                </a>
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {visibleList.map(product => (
+            <React.Fragment key={product.product.id}>
+              <tr data-cy="Product">
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {product.product.id}
+                  {' '}
 
-              <td data-cy="ProductName">{product.product.name}</td>
-              <td data-cy="ProductCategory">
-                {`${product.category.icon} - ${product.category.title}`}
-              </td>
+                </td>
 
-              <td
-                data-cy="ProductUser"
-                className={product.user.sex === 'f'
-                  ? 'has-text-danger' : 'has-text-link'}
-              >
-                {product.user.name}
-              </td>
-            </tr>
+                <td data-cy="ProductName">{product.product.name}</td>
+                <td data-cy="ProductCategory">
+                  {`${product.category.icon} - ${product.category.title}`}
+                </td>
 
-          </React.Fragment>
-        ))}
+                <td
+                  data-cy="ProductUser"
+                  className={product.user.sex === 'f'
+                    ? 'has-text-danger' : 'has-text-link'}
+                >
+                  {product.user.name}
+                </td>
+              </tr>
 
-      </tbody>
-    </table>
-  );
+            </React.Fragment>
+          ))}
+
+        </tbody>
+      </table>
+    );
+  }
+
+  return visibleList;
 };

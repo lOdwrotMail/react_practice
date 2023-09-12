@@ -6,6 +6,8 @@ import { List } from './components/List';
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
+import { UserFilter } from './components/UserFilter';
+import { Search } from './components/Search';
 
 const products = productsFromServer.map((product) => {
   const category
@@ -19,6 +21,11 @@ export const App = () => {
   const [pickedUser, setPickedUser] = useState(null);
   const [query, setQuery] = useState('');
 
+  const handleReset = () => {
+    setPickedUser(null);
+    setQuery('');
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -28,52 +35,14 @@ export const App = () => {
           <nav className="panel">
             <p className="panel-heading">Filters</p>
             <p className="panel-tabs has-text-weight-bold">
-              <a
-                data-cy="FilterAllUsers"
-                href="#/"
-                onClick={() => setPickedUser(null)}
-              >
-                All
-              </a>
-
-              {usersFromServer.map(user => (
-                <a
-                  key={user.id}
-                  data-cy="FilterUser"
-                  href="#/"
-                  onClick={() => setPickedUser(user.id)}
-                  className={(pickedUser === user.id) && 'is-active'}
-                >
-                  {user.name}
-                </a>
-              ))}
+              <UserFilter
+                usersFromServer={usersFromServer}
+                pickedUser={pickedUser}
+                setPickedUser={setPickedUser}
+              />
             </p>
 
-            <div className="panel-block">
-              <p className="control has-icons-left has-icons-right">
-                <input
-                  data-cy="SearchField"
-                  type="text"
-                  className="input"
-                  placeholder="Search"
-                  value={query}
-                  onChange={event => setQuery(event.target.value)}
-                />
-
-                <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
-                </span>
-
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
-              </p>
-            </div>
+            <Search query={query} setQuery={setQuery} />
 
             <div className="panel-block is-flex-wrap-wrap">
               <a
@@ -121,6 +90,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleReset}
               >
                 Reset all filters
               </a>
