@@ -8,3 +8,14 @@ iframe {
   padding: 10px;
   outline: 2px solid darken(#a3ebdd93, 40);
 }
+
+.warnMessage {
+  background-color: rgba(255, 0, 0, 0.51);
+  color: red;
+  padding: 10px;
+  margin: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 1px rgb(95, 13, 13);
+  outline: 2px solid rgb(95, 13, 13);
+}

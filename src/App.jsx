@@ -19,7 +19,8 @@ export const App = () => {
     .filter(product => product
       .name.toLowerCase().includes(productNameFilter.toLowerCase()));
 
-  const uniqueUserNames = [...new Set(usersFromServer.map(user => user.name))];
+  const uniqueUserNames
+  = [...new Set(usersFromServer.map(user => user.name))];
 
   uniqueUserNames.unshift('All');
 
@@ -28,6 +29,11 @@ export const App = () => {
   };
 
   const handleClearFilter = () => {
+    setProductNameFilter('');
+  };
+
+  const handleResetFilters = () => {
+    setSelectedUser('All');
     setProductNameFilter('');
   };
 
@@ -119,9 +125,21 @@ export const App = () => {
             </div>
           </div>
 
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {filteredProducts.length === 0 && (
+            <p data-cy="NoMatchingMessage" className="warnMessage">
+              No products matching selected criteria!
+            </p>
+          )}
+
+          <button
+            type="button"
+            className="button is-link"
+            onClick={handleResetFilters}
+            data-cy="ResetFiltersButton"
+          >
+            Reset All Filters
+          </button>
+
           <table
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
