@@ -258,20 +258,17 @@ import productsFromServer from './api/products';
 import usersFromServer from './api/users';
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState(null); // Состояние для выбранного пользователя
-  const [searchText, setSearchText] = useState(''); // Состояние для введенного текста поиска
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchText, setSearchText] = useState('');
 
-  // Функция для обновления выбранного пользователя
   const handleUserFilter = (userId) => {
     setSelectedUser(userId);
   };
 
-  // Функция для проверки, выбран ли пользователь
   const isUserActive = (userId) => {
     return selectedUser === userId;
   };
 
-  // Функция для обновления введенного текста поиска
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value);
   };
@@ -375,7 +372,6 @@ export const App = () => {
                 )}
               </p>
             </div>
-            {/* Другие фильтры и JSX-код */}
           </nav>
         </div>
         <div className="box table-container">
