@@ -27,15 +27,23 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [userFilter, setUserFilter] = useState(null);
+  const [search, setSearch] = useState('');
 
   const filteredProducts = userFilter
     ? products.filter(product => product.user.id === userFilter)
     : products;
 
-  console.log(filteredProducts);
+  const visibleProducts = search.length > 0
+    ? filteredProducts
+      .filter(product => product
+        .name.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+    : filteredProducts;
+
+  console.log(visibleProducts);
 
   const resetFilters = () => {
     setUserFilter(null);
+    setSearch('');
     // add other resets here
   };
 
@@ -78,7 +86,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -158,7 +167,7 @@ export const App = () => {
           )}
 
           {filteredProducts.length > 0
-            && <ProductList products={filteredProducts} />}
+            && <ProductList products={visibleProducts} />}
         </div>
       </div>
     </div>
