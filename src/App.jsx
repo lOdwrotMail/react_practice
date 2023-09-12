@@ -6,6 +6,8 @@ import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
+const categories = categoriesFromServer;
+
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer
     .find(cat => cat.id === product.categoryId);
@@ -22,6 +24,7 @@ export const App = () => {
   const [selectedUser, setSelectedUser] = useState({});
   const [input, setInput] = useState('');
   const [filters, setFilters] = useState(products);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     setFilters(products
@@ -42,6 +45,15 @@ export const App = () => {
         return true;
       }));
   }, [selectedUser, input]);
+
+  const categorySelect = (cat) => {
+    if (selectedCategories.some(category => category.id === cat.id)) {
+      setSelectedCategories(selectedCategories
+        .filter(category => category.id !== cat.id));
+    } else {
+      setSelectedCategories([...selectedCategories, cat]);
+    }
+  };
 
   return (
 
@@ -116,11 +128,15 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  {input
+                  && (
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setInput('')}
                   />
+                  )}
                 </span>
               </p>
             </div>
@@ -129,12 +145,27 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                onClick={() => setSelectedCategories([])}
+                className={cn('button mr-6 is-success', {
+                  'is-outlined': selectedCategories.length === 0,
+                })}
               >
                 All
               </a>
-
-              <a
+              {categories.map(category => (
+                <a
+                  key={category.id}
+                  data-cy="Category"
+                  className={cn('button mr-2 my-1', {
+                    'is-info': selectedCategories.includes(category),
+                  })}
+                  href="#/"
+                  onClick={() => categorySelect(category)}
+                >
+                  {category.title}
+                </a>
+              ))}
+              {/* <a
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
@@ -163,11 +194,12 @@ export const App = () => {
                 href="#/"
               >
                 Category 4
-              </a>
+              </a> */}
             </div>
 
             <div className="panel-block">
               <a
+                onClick={() => setFilters(products)}
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
@@ -179,9 +211,13 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {filters.length === 0
+           && (
+           <p data-cy="NoMatchingMessage">
+             No products matching selected criteria
+           </p>
+           )
+          }
 
           <table
             data-cy="ProductTable"
