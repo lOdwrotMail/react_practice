@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable react/jsx-indent */
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -14,7 +14,20 @@ import productsFromServer from './api/products';
 //   return null;
 // });
 
-export const App = () => (
+export const App = () => {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showAllProducts, setShowAllProducts] = useState(true);
+
+  const productsWithCategories = productsFromServer.map((product) => {
+    const category = categoriesFromServer.find(c => c.id === product.categoryId);
+
+    return {
+      ...product,
+      category,
+    };
+  });
+
+  return (
   <div className="section">
     <div className="container">
       <h1 className="title">Product Categories</h1>
@@ -27,6 +40,11 @@ export const App = () => (
             <a
               data-cy="FilterAllUsers"
               href="#/"
+              className={showAllProducts ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser(null);
+                setShowAllProducts(true);
+              }}
             >
               All
             </a>
@@ -34,6 +52,12 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
+              className={selectedUser === 'Roma' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Roma');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 1
             </a>
@@ -41,7 +65,12 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
-              className="is-active"
+              className={selectedUser === 'Anna' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Anna');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 2
             </a>
@@ -49,8 +78,26 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
+              className={selectedUser === 'Max' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Max');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 3
+            </a>
+            <a
+              data-cy="FilterUser"
+              href="#/"
+              className={selectedUser === 'John' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('John');
+                setShowAllProducts(null);
+              }
+              }
+            >
+              User 4
             </a>
           </p>
 
@@ -194,7 +241,13 @@ export const App = () => (
           </thead>
 
           <tbody>
-            {productsFromServer.map(product => (
+            {productsWithCategories
+              .filter((product) => {
+                const owner = usersFromServer.find(user => user.id === product.category.ownerId);
+
+                return showAllProducts || selectedUser === owner.name;
+              })
+              .map(product => (
               <tr key={product.id} data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
                   {product.id}
@@ -219,10 +272,11 @@ export const App = () => (
                   {usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId)?.name || 'No user found'}
                 </td>
               </tr>
-            ))}
+              ))}
           </tbody>
         </table>
       </div>
     </div>
   </div>
-);
+  );
+};
