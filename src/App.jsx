@@ -54,39 +54,18 @@ export const App = () => {
               >
                 All
               </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                onClick={() => setSelectedUser(1)}
-                className={cn({
-                  'is-active': selectedUser === 1,
-                })}
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                onClick={() => setSelectedUser(2)}
-                className={cn({
-                  'is-active': selectedUser === 2,
-                })}
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                onClick={() => setSelectedUser(3)}
-                className={cn({
-                  'is-active': selectedUser === 3,
-                })}
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterAllUsers"
+                  href="#/"
+                  onClick={() => setSelectedUser(user.id)}
+                  className={cn({
+                    'is-active': selectedUser === user.id,
+                  })}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -108,12 +87,12 @@ export const App = () => {
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   {query.length > 0
                     && (
-                    <button
-                      data-cy="ClearButton"
-                      type="button"
-                      className="delete"
-                      onClick={() => setQuery('')}
-                    />
+                      <button
+                        data-cy="ClearButton"
+                        type="button"
+                        className="delete"
+                        onClick={() => setQuery('')}
+                      />
                     )
                   }
                 </span>
