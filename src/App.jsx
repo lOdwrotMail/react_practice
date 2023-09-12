@@ -22,6 +22,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [userFilter, setUserFilter] = useState(0);
   const [search, setSearch] = useState('');
+  const [categoriesSelected, setCategoriesSelected] = useState([]);
 
   const willProductsFiltered = () => {
     let productsFiltered = products;
@@ -40,6 +41,12 @@ export const App = () => {
       );
     }
 
+    if (categoriesSelected.length > 0) {
+      productsFiltered = productsFiltered.filter(
+        product => categoriesSelected.includes(product.category.id),
+      );
+    }
+
     return productsFiltered;
   };
 
@@ -47,9 +54,24 @@ export const App = () => {
     setSearch(event.target.value);
   };
 
+  const handleCategorySelection = (categoryId) => {
+    if (categoriesSelected.includes(categoryId)) {
+      setCategoriesSelected(prevSelection => prevSelection.filter(
+        prevCategoryId => prevCategoryId !== categoryId,
+      ));
+    } else {
+      (
+        setCategoriesSelected(prevSelection => (
+          [...prevSelection, categoryId]
+        ))
+      );
+    }
+  };
+
   const resetAllFilters = () => {
     setUserFilter(0);
     setSearch('');
+    setCategoriesSelected([]);
   };
 
   return (
@@ -118,12 +140,30 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={cn('button is-success mr-6',
+                  { 'is-outlined': !categoriesSelected.length < 1 })}
+                onClick={() => {
+                  setCategoriesSelected([]);
+                }}
               >
                 All
               </a>
 
-              <a
+              {categoriesFromServer.map(
+                category => (
+                  <a
+                    data-cy="Category"
+                    className={cn('button mr-2 my-1',
+                      { 'is-info': categoriesSelected.includes(category.id) })}
+                    href="#/"
+                    key={category.id}
+                    onClick={() => (handleCategorySelection(category.id))}
+                  >
+                    {category.title}
+                  </a>
+                ),
+              )}
+              {/* <a
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
@@ -152,7 +192,7 @@ export const App = () => {
                 href="#/"
               >
                 Category 4
-              </a>
+              </a> */}
             </div>
 
             <div className="panel-block">
