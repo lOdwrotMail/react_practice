@@ -202,7 +202,7 @@ export const App = () => (
             {products.map(product => (
               <tr data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
-                  1
+                  {product.id}
                 </td>
 
                 <td data-cy="ProductName">{product.name}</td>
