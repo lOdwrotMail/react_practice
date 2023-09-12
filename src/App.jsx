@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState } from 'react';
 import './App.scss';
 import cn from 'classnames';
@@ -23,6 +25,8 @@ export const App = () => {
   const [userFilter, setUserFilter] = useState(0);
   const [search, setSearch] = useState('');
   const [categoriesSelected, setCategoriesSelected] = useState([]);
+  // const [sortByColumn, setSortByColumn] = useState('');
+  // const [sortArrow, setSortArrow] = useState(0);
 
   const willProductsFiltered = () => {
     let productsFiltered = products;
@@ -72,7 +76,35 @@ export const App = () => {
     setUserFilter(0);
     setSearch('');
     setCategoriesSelected([]);
+    // setSortByColumn('');
   };
+
+  // const handleSortByColumn = (column) => {
+  //   setSortByColumn((prevSort) => {
+  //     if (prevSort === column) {
+  //       return (sortArrow === 1
+  //         ? setSortArrow(2)
+  //         : setSortArrow(0)
+  //       );
+  //     }
+
+  //     return setSortArrow(1);
+  //   });
+
+  //   // const productsSorted = [...productsFiltered];
+
+  //   // if (sortByColumn === 'Product') {
+  //   //   if (sortArrow === 1) {
+  //   //     productsSorted.sort((a, b) => a.localeCompare(b));
+  //   //   }
+
+  //   //   if (sortArrow === 2) {
+  //   //     productsSorted.sort((a, b) => b.localeCompare(a));
+  //   //   }
+  //   // }
+
+  //   // return productsSorted;
+  // };
 
   return (
     <div className="section">
@@ -163,36 +195,7 @@ export const App = () => {
                   </a>
                 ),
               )}
-              {/* <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a> */}
             </div>
 
             <div className="panel-block">
@@ -229,7 +232,17 @@ export const App = () => {
 
                         <a href="#/">
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort" />
+
+                            <i
+                              data-cy="SortIcon"
+                              // className={cn('fas',
+                              //   { 'fa-sort-down': sortArrow === 2,
+                              //     'fa-sort-up': sortArrow === 1,
+                              //     'fa-sort': sortArrow === 0 })}
+                              // onClick={() => {
+                              //   handleSortByColumn('ID');
+                              // }}
+                            />
                           </span>
                         </a>
                       </span>
@@ -243,7 +256,13 @@ export const App = () => {
                           <span className="icon">
                             <i
                               data-cy="SortIcon"
-                              className="fas fa-sort-down"
+                              // className={cn('fas',
+                              //   { 'fa-sort-down': sortArrow === 2,
+                              //     'fa-sort-up': sortArrow === 1,
+                              //     'fa-sort': sortArrow === 0 })}
+                              // onClick={() => {
+                              //   handleSortByColumn('Product');
+                              // }}
                             />
                           </span>
                         </a>
@@ -256,7 +275,16 @@ export const App = () => {
 
                         <a href="#/">
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort-up" />
+                            <i
+                              data-cy="SortIcon"
+                              // className={cn('fas',
+                              //   { 'fa-sort-down': sortArrow === 2,
+                              //     'fa-sort-up': sortArrow === 1,
+                              //     'fa-sort': sortArrow === 0 })}
+                              // onClick={() => {
+                              //   handleSortByColumn('Category');
+                              // }}
+                            />
                           </span>
                         </a>
                       </span>
@@ -268,7 +296,16 @@ export const App = () => {
 
                         <a href="#/">
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort" />
+                            <i
+                              data-cy="SortIcon"
+                              // className={cn('fas',
+                              //   { 'fa-sort-down': sortArrow === 2,
+                              //     'fa-sort-up': sortArrow === 1,
+                              //     'fa-sort': sortArrow === 0 })}
+                              // onClick={() => {
+                              //   handleSortByColumn('User');
+                              // }}
+                            />
                           </span>
                         </a>
                       </span>
@@ -300,53 +337,6 @@ export const App = () => {
                     </tr>
                   ))}
 
-                  {/* <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
-
-              <td data-cy="ProductName">----</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
-
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr> */}
                 </tbody>
               </table>
               )}
