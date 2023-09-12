@@ -17,7 +17,7 @@ const products = productsFromServer.map(({ categoryId, ...product }) => {
 });
 
 export const App = () => {
-  const [chosenUserId, setchosenUserId] = useState(null);
+  const [chosenUserId, setChosenUserId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredProducts = chosenUserId
@@ -44,7 +44,7 @@ export const App = () => {
                 className={!chosenUserId ? 'is-active' : ''}
                 onClick={(event) => {
                   event.preventDefault();
-                  setchosenUserId(null);
+                  setChosenUserId(null);
                 }}
               >
                 All
@@ -58,7 +58,7 @@ export const App = () => {
                   className={chosenUserId === user.id ? 'is-active' : ''}
                   onClick={(event) => {
                     event.preventDefault();
-                    setchosenUserId(user.id);
+                    setChosenUserId(user.id);
                   }}
                 >
                   {user.name}
@@ -193,9 +193,7 @@ export const App = () => {
                     </td>
                     <td data-cy="ProductName">{product.name}</td>
                     <td data-cy="ProductCategory">
-                      {product.category.icon}
-                      -
-                      {product.category.title}
+                      {`${product.category.icon} - ${product.category.title}`}
                     </td>
                     <td
                       data-cy="ProductUser"
