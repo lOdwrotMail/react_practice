@@ -1,12 +1,19 @@
 /* eslint-disable arrow-body-style */
-export const ProductList = ({ products, selectedUser }) => {
+export const ProductList = ({ products, selectedUser, textFilter }) => {
   const filteredProducts = (prod) => {
+    let prodCopy = [...prod];
+
     if (selectedUser !== 'all') {
-      return prod.filter(product => product.category.ownerId
+      prodCopy = prodCopy.filter(product => product.category.ownerId
         === selectedUser.id);
     }
 
-    return products;
+    if (textFilter !== '') {
+      prodCopy = prodCopy.filter(product => product
+        .name.toLowerCase().includes(textFilter.toLowerCase()));
+    }
+
+    return prodCopy;
   };
 
   const filtered = filteredProducts(products);

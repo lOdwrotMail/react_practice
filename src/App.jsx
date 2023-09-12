@@ -22,6 +22,7 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState('all');
+  const [textFilter, setTextFilter] = useState('');
 
   return (
 
@@ -48,7 +49,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={textFilter}
+                  onChange={e => setTextFilter(e.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -57,11 +59,13 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  {textFilter !== '' && (
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
                   />
+                  )}
                 </span>
               </p>
             </div>
@@ -119,7 +123,11 @@ export const App = () => {
           </nav>
         </div>
 
-        <ProductList products={products} selectedUser={selectedUser} />
+        <ProductList
+          products={products}
+          selectedUser={selectedUser}
+          textFilter={textFilter}
+        />
 
       </div>
     </div>
