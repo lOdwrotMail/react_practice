@@ -117,6 +117,10 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={() => {
+                  setSelectedUser('all');
+                  setTextFilter('');
+                }}
               >
                 Reset all filters
               </a>
