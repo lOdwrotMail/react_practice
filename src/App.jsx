@@ -17,6 +17,7 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [pickedUser, setPickedUser] = useState(null);
+  const [query, setQuery] = useState('');
 
   return (
     <div className="section">
@@ -37,9 +38,11 @@ export const App = () => {
 
               {usersFromServer.map(user => (
                 <a
+                  key={user.id}
                   data-cy="FilterUser"
                   href="#/"
                   onClick={() => setPickedUser(user.id)}
+                  className={(pickedUser === user.id) && 'is-active'}
                 >
                   {user.name}
                 </a>
@@ -53,7 +56,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -129,7 +133,7 @@ export const App = () => {
             No products matching selected criteria
           </p>
 
-          <List products={products} pickedUser={pickedUser} />
+          <List products={products} pickedUser={pickedUser} query={query} />
         </div>
       </div>
     </div>
