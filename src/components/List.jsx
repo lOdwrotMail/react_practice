@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 /* eslint-disable jsx-a11y/accessible-emoji */
-export const List = ({ products, pickedUser, query }) => {
+export const List = ({ products, pickedUser, query, selectedCategories }) => {
   const [sortField, setSortField] = useState('');
   const [isReversed, setReversed] = useState(false);
   const sortBy = (field) => {
@@ -43,6 +43,11 @@ export const List = ({ products, pickedUser, query }) => {
     visibleList = visibleList
       .filter(product => product.product.name
         .toLowerCase().includes(query.trim().toLowerCase()));
+  }
+
+  if (selectedCategories.length > 0) {
+    visibleList = visibleList
+      .filter(product => selectedCategories.includes(product.category.id));
   }
 
   if (visibleList.length > 0) {

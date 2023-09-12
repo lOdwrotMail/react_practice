@@ -20,11 +20,28 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [pickedUser, setPickedUser] = useState(null);
   const [query, setQuery] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   const handleReset = () => {
     setPickedUser(null);
     setQuery('');
   };
+
+  const toggleCategory = (categoryId) => {
+    if (selectedCategories.includes(categoryId)) {
+      setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
+    } else {
+      setSelectedCategories([...selectedCategories, categoryId]);
+    }
+  };
+
+  const uniqueCategoryIds = new Set();
+
+  products.forEach((product) => {
+    uniqueCategoryIds.add(product.category.id);
+  });
+
+  const uniqueCategoryIdsArray = Array.from(uniqueCategoryIds);
 
   return (
     <div className="section">
@@ -49,40 +66,28 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={() => setSelectedCategories([])}
               >
                 All
               </a>
+              {uniqueCategoryIdsArray.map((categoryId) => {
+                const category
+                  = categoriesFromServer.find(cat => cat.id === categoryId);
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+                return (
+                  <a
+                    key={categoryId}
+                    data-cy="Category"
+                    className={`button mr-2 my-1 ${
+                      selectedCategories.includes(categoryId) ? 'is-info' : ''
+                    }`}
+                    href="#/"
+                    onClick={() => toggleCategory(categoryId)}
+                  >
+                    {category.title}
+                  </a>
+                );
+              })}
             </div>
 
             <div className="panel-block">
@@ -103,7 +108,12 @@ export const App = () => {
             No products matching selected criteria
           </p>
 
-          <List products={products} pickedUser={pickedUser} query={query} />
+          <List
+            products={products}
+            pickedUser={pickedUser}
+            query={query}
+            selectedCategories={selectedCategories}
+          />
         </div>
       </div>
     </div>
