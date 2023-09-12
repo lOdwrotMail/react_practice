@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import './App.scss';
-
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState('All'); // Default selection is 'All'
+  const [selectedUser, setSelectedUser] = useState('All');
+  const [productNameFilter, setProductNameFilter] = useState('');
 
-  // Filter products based on the selected user
-  const filteredProducts = productsFromServer.filter((product) => {
-    const category
-    = categoriesFromServer.find(cat => cat.id === product.categoryId);
-    const user = usersFromServer.find(usr => usr.id === category.ownerId);
+  const filteredProducts = productsFromServer
+    .filter((product) => {
+      const category
+      = categoriesFromServer.find(cat => cat.id === product.categoryId);
+      const user = usersFromServer.find(usr => usr.id === category.ownerId);
 
-    return selectedUser === 'All' || user.name === selectedUser;
-  });
+      return selectedUser === 'All' || user.name === selectedUser;
+    })
+    .filter(product => product
+      .name.toLowerCase().includes(productNameFilter.toLowerCase()));
 
   const uniqueUserNames = [...new Set(usersFromServer.map(user => user.name))];
 
@@ -23,6 +25,10 @@ export const App = () => {
 
   const handleUserChange = (event) => {
     setSelectedUser(event.target.value);
+  };
+
+  const handleClearFilter = () => {
+    setProductNameFilter('');
   };
 
   const products = filteredProducts.map((product) => {
@@ -34,10 +40,7 @@ export const App = () => {
 
     return (
       <tr key={product.id} data-cy="Product">
-        <td
-          className="has-text-weight-bold"
-          data-cy="ProductId"
-        >
+        <td className="has-text-weight-bold" data-cy="ProductId">
           {product.id}
         </td>
         <td data-cy="ProductName">{product.name}</td>
@@ -86,6 +89,33 @@ export const App = () => {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          <div className="field">
+            <label htmlFor="productNameFilter" className="label">
+              Filter by Product Name:
+            </label>
+            <div className="control has-icons-left has-icons-right">
+              <input
+                type="text"
+                id="productNameFilter"
+                className="input"
+                placeholder="Enter product name"
+                value={productNameFilter}
+                onChange={e => setProductNameFilter(e.target.value)}
+                data-cy="ProductNameFilter"
+              />
+              {productNameFilter && (
+                <span className="icon is-small is-right">
+                  <button
+                    type="button"
+                    className="delete is-small"
+                    onClick={handleClearFilter}
+                    data-cy="ClearFilterButton"
+                  />
+                </span>
+              )}
             </div>
           </div>
 
