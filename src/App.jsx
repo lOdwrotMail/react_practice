@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import './App.scss';
-import cn from 'classnames';
+import { ProductsTable } from './components/ProductsTable';
+import { Filters } from './components/Filters';
 
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
 const categories = categoriesFromServer;
+const users = usersFromServer;
 
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer
@@ -25,41 +27,118 @@ export const App = () => {
   const [input, setInput] = useState('');
   const [filters, setFilters] = useState(products);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [sortBy, setSortBy] = useState('');
+  const [isReversed, setIsReversed] = useState(false);
+  const [sorted, setSorted] = useState(filters);
 
-  useEffect(() => {
-    setFilters(products
-      .filter((product) => {
-        if (selectedUser.name && input) {
-          return product.user.name === selectedUser.name
-                 && product.name.toLowerCase().includes(input.toLowerCase());
-        }
+  const filteredProducts = (selUser, In, selCat) => {
+    let filteredData = products;
 
-        if (selectedUser.name) {
-          return product.user.name === selectedUser.name;
-        }
-
-        if (input) {
-          return product.name.toLowerCase().includes(input.toLowerCase());
-        }
-
-        return true;
-      }));
-  }, [selectedUser, input, selectedCategories]);
-
-  useEffect(() => {
-    if (selectedCategories.length !== 0) {
-      setFilters(filters.filter(product => categories
-        .some(category => category.id === product.categoryId)));
+    if (Object.keys(selUser).length !== 0) {
+      filteredData = filteredData
+        .filter(product => product.user.id === selUser.id);
     }
-  }, [selectedCategories]);
+
+    if (input.length > 0) {
+      filteredData = filteredData
+        .filter(prod => prod.name.toLowerCase().includes(In.toLowerCase()));
+    }
+
+    if (selCat.length > 0) {
+      filteredData = filteredData.filter(product => selectedCategories
+        .some(cat => cat.title === product.category.title));
+    }
+
+    return setFilters(filteredData);
+  };
+
+  const selectSortBy = (e) => {
+    setSortBy((prevState) => {
+      if (prevState === e && isReversed === false) {
+        setIsReversed(true);
+
+        return e;
+      }
+
+      if (prevState === e && isReversed === true) {
+        setIsReversed(false);
+
+        return '';
+      }
+
+      setIsReversed(false);
+
+      return e;
+    });
+  };
+
+  const sortTable = (sort, reverse) => {
+    let sortedTable;
+
+    switch (sort) {
+      case 'id':
+        sortedTable = reverse
+          ? setSorted([...filters].sort((a, b) => +a.id - +b.id).reverse())
+          : setSorted([...filters].sort((a, b) => +a.id - +b.id));
+        break;
+      case 'product':
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.name.localeCompare(b.name)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.name.localeCompare(b.name)));
+        break;
+      case 'category':
+
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.category.title
+              .localeCompare(b.category.title)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.category.title
+              .localeCompare(b.category.title)));
+        break;
+      case 'user':
+
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.user.name.localeCompare(b.user.name)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.user.name.localeCompare(b.user.name)));
+        break;
+      default:
+        sortedTable = setSorted(filters);
+    }
+
+    return sortedTable;
+  };
+
+  useMemo(() => sortTable(sortBy, isReversed), [sortBy, filters, isReversed]);
+
+  useMemo(() => filteredProducts(
+    selectedUser, input, selectedCategories,
+  ), [selectedUser, input, selectedCategories]);
 
   const categorySelect = (cat) => {
-    if (selectedCategories.some(category => category.id === cat.id)) {
-      setSelectedCategories(prevCategories => prevCategories
-        .filter(category => category.id !== cat.id));
-    } else {
-      setSelectedCategories(prevCategories => [...prevCategories, cat]);
-    }
+    setSelectedCategories((prevState) => {
+      if (cat.length === 0) {
+        return [];
+      }
+
+      if (prevState.includes(cat)) {
+        return prevState.filter(selectedCat => selectedCat.id !== cat.id);
+      }
+
+      return [...prevState, cat];
+    });
+  };
+
+  const usersOnClickHandle = (e) => {
+    setSelectedUser(e);
+  };
+
+  const inputOnChangeHandle = (e) => {
+    setInput(e);
   };
 
   return (
@@ -68,159 +147,18 @@ export const App = () => {
       <div className="container">
         <h1 className="title">Product Categories</h1>
         <div className="block">
-          <nav className="panel">
-            <p className="panel-heading">Filters</p>
+          <Filters
+            usersOnClickHandle={usersOnClickHandle}
+            inputOnChangeHandle={inputOnChangeHandle}
+            filteredProducts={filteredProducts}
+            categorySelect={categorySelect}
+            users={users}
+            selectedUser={selectedUser}
+            input={input}
+            categories={categories}
+            selectedCategories={selectedCategories}
+          />
 
-            <p className="panel-tabs has-text-weight-bold">
-              <a
-                data-cy="FilterAllUsers"
-                href="#/"
-                onClick={() => setSelectedUser({})}
-                className={cn({
-                  'is-active': !selectedUser.name,
-                })}
-              >
-                All
-              </a>
-              {usersFromServer.map(user => (
-                <a
-                  key={user.id}
-                  onClick={() => setSelectedUser(user)}
-                  data-cy="FilterUser"
-                  href="#/"
-                  className={cn({
-                    'is-active': user.id === selectedUser.id,
-                  })}
-                >
-                  {user.name}
-                </a>
-              ))}
-              {/* <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a> */}
-            </p>
-
-            <div className="panel-block">
-              <p className="control has-icons-left has-icons-right">
-                <input
-                  data-cy="SearchField"
-                  type="text"
-                  className="input"
-                  placeholder="Search"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                />
-
-                <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
-                </span>
-
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  {input
-                  && (
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                    onClick={() => setInput('')}
-                  />
-                  )}
-                </span>
-              </p>
-            </div>
-
-            <div className="panel-block is-flex-wrap-wrap">
-              <a
-                href="#/"
-                data-cy="AllCategories"
-                onClick={() => setSelectedCategories([])}
-                className={cn('button mr-6 is-success', {
-                  'is-outlined': selectedCategories.length === 0,
-                })}
-              >
-                All
-              </a>
-              {categories.map(category => (
-                <a
-                  key={category.id}
-                  data-cy="Category"
-                  className={cn('button mr-2 my-1', {
-                    'is-info': selectedCategories.includes(category),
-                  })}
-                  href="#/"
-                  onClick={() => categorySelect(category)}
-                >
-                  {category.title}
-                </a>
-              ))}
-              {/* <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a> */}
-            </div>
-
-            <div className="panel-block">
-              <a
-                onClick={() => {
-                  setFilters(products);
-                  setInput('');
-                  setSelectedCategories([]);
-                  setSelectedUser([]);
-                }
-                }
-                data-cy="ResetAllButton"
-                href="#/"
-                className="button is-link is-outlined is-fullwidth"
-              >
-                Reset all filters
-              </a>
-            </div>
-          </nav>
         </div>
 
         <div className="box table-container">
@@ -231,139 +169,13 @@ export const App = () => {
            </p>
            )
           }
+          <ProductsTable
+            filters={sorted}
+            selectSortBy={selectSortBy}
+            sortBy={sortBy}
+            isReversed={isReversed}
+          />
 
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {/* <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
-
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
-
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr> */}
-              {filters.map(product => (
-                <tr key={product.id} data-cy="Product">
-                  <td className="has-text-weight-bold" data-cy="ProductId">
-                    {product.id}
-                  </td>
-
-                  <td data-cy="ProductName">{product.name}</td>
-                  <td
-                    data-cy="ProductCategory"
-                  >
-                    {`${product.category.icon} - ${product.category.title}`}
-
-                  </td>
-
-                  <td
-                    data-cy="ProductUser"
-                    className={cn({
-                      'has-text-link': product.user.sex === 'm',
-                      'has-text-danger': product.user.sex === 'f',
-                    })}
-                  >
-                    {product.user.name}
-                  </td>
-                </tr>
-              ))}
-
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
