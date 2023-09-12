@@ -5,12 +5,9 @@ import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
-const products = productsFromServer.map((product) => {
-  const category = categoriesFromServer.find(
-    categoryFromServer => categoryFromServer.id
-    === product.categoryId,
-  );
-  const user = usersFromServer.find(u => u.id === category.ownerId);
+const products = productsFromServer.map(({ categoryId, ...product }) => {
+  const category = categoriesFromServer.find(({ id }) => id === categoryId);
+  const user = usersFromServer.find(({ id }) => id === category.ownerId);
 
   return {
     ...product,
