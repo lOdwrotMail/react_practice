@@ -17,6 +17,7 @@ import productsFromServer from './api/products';
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showAllProducts, setShowAllProducts] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
 
   const productsWithCategories = productsFromServer.map((product) => {
     const category = categoriesFromServer.find(c => c.id === product.categoryId);
@@ -26,6 +27,17 @@ export const App = () => {
       category,
     };
   });
+
+  const doesProductMatchSearch = (product, searchValue) => {
+    if (!searchValue) {
+      return true;
+    }
+
+    const productNameLower = product.name.toLowerCase();
+    const searchValueLower = searchValue.toLowerCase();
+
+    return productNameLower.includes(searchValueLower);
+  };
 
   return (
   <div className="section">
@@ -108,21 +120,24 @@ export const App = () => {
                 type="text"
                 className="input"
                 placeholder="Search"
-                value="qwe"
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
               />
 
               <span className="icon is-left">
                 <i className="fas fa-search" aria-hidden="true" />
               </span>
 
-              <span className="icon is-right">
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <button
-                  data-cy="ClearButton"
-                  type="button"
-                  className="delete"
-                />
-              </span>
+              {searchValue && (
+                <span className="icon is-right">
+                  <button
+                    data-cy="ClearButton"
+                    type="button"
+                    className="delete"
+                    onClick={() => setSearchValue('')}
+                  />
+                </span>
+              )}
             </p>
           </div>
 
@@ -247,6 +262,7 @@ export const App = () => {
 
                 return showAllProducts || selectedUser === owner.name;
               })
+              .filter(product => doesProductMatchSearch(product, searchValue))
               .map(product => (
               <tr key={product.id} data-cy="Product">
                 <td className="has-text-weight-bold" data-cy="ProductId">
