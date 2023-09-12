@@ -1,16 +1,27 @@
+/* eslint-disable no-console */
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+const products = productsFromServer.map((product) => {
+  const category = categoriesFromServer.find(
+    c => c.id === product.categoryId,
+  ) || null;
 
-//   return null;
-// });
+  const user = usersFromServer.find(
+    u => u.id === category.ownerId,
+  ) || null;
+
+  return {
+    id: product.id,
+    name: product.name,
+    category,
+    user,
+  };
+});
 
 export const App = () => (
   <div className="section">
@@ -198,7 +209,10 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="bear">🍺</span>
+                ` - Drinks`
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -214,7 +228,10 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="bread">🍞</span>
+                ` - Grocery`
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -230,7 +247,10 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="computer">💻</span>
+                ` - Electronics`
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -241,6 +261,7 @@ export const App = () => (
             </tr>
           </tbody>
         </table>
+        {products.length}
       </div>
     </div>
   </div>
