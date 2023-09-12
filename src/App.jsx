@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -6,36 +6,64 @@ import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
 export const App = () => {
-  const productRows = productsFromServer.map((product) => {
-    const productCategory
-    = categoriesFromServer.find(category => category.id === product.categoryId);
-    const owner
-    = usersFromServer.find(user => user.id === productCategory.ownerId);
+  const [selectedUser, setSelectedUser] = useState('All');
 
-    const categoryIcon = productCategory ? productCategory.icon : '';
-    const ownerClassName = owner && owner.sex === 'm'
-      ? 'has-text-link'
-      : 'has-text-danger';
+  const handleUserFilterChange = (user) => {
+    setSelectedUser(user);
+  };
 
-    return (
-      <tr key={product.id} data-cy="Product">
-        <td className="has-text-weight-bold" data-cy="ProductId">
-          {product.id}
-        </td>
-        <td data-cy="ProductName">{product.name}</td>
-        <td data-cy="ProductCategory">
-          {categoryIcon}
-          {' '}
-          -
-          {' '}
-          {productCategory ? productCategory.title : ''}
-        </td>
-        <td data-cy="ProductUser" className={ownerClassName}>
-          {owner ? owner.name : ''}
-        </td>
-      </tr>
-    );
-  });
+  const productRows = productsFromServer
+    .filter((product) => {
+      if (selectedUser === 'All') {
+        return true;
+      }
+
+      const productCategory = categoriesFromServer.find(
+        category => category.id === product.categoryId,
+      );
+
+      return (
+        productCategory
+        && usersFromServer.find(
+          user => user.id === productCategory.ownerId,
+        )?.name === selectedUser
+      );
+    })
+    .map((product) => {
+      const productCategory = categoriesFromServer.find(
+        category => category.id === product.categoryId,
+      );
+
+      const categoryIcon = productCategory ? productCategory.icon : '';
+      const ownerClassName
+        = productCategory
+        && usersFromServer.find(
+          user => user.id === productCategory.ownerId,
+        )?.sex === 'm'
+          ? 'has-text-link'
+          : 'has-text-danger';
+
+      return (
+        <tr key={product.id} data-cy="Product">
+          <td className="has-text-weight-bold" data-cy="ProductId">
+            {product.id}
+          </td>
+          <td data-cy="ProductName">{product.name}</td>
+          <td data-cy="ProductCategory">
+            {categoryIcon}
+            {' '}
+            -
+            {' '}
+            {productCategory ? productCategory.title : ''}
+          </td>
+          <td data-cy="ProductUser" className={ownerClassName}>
+            {productCategory && usersFromServer.find(
+              user => user.id === productCategory.ownerId,
+            )?.name}
+          </td>
+        </tr>
+      );
+    });
 
   return (
     <div className="section">
@@ -50,31 +78,22 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                onClick={() => handleUserFilterChange('All')}
+                className={selectedUser === 'All' ? 'is-active' : ''}
               >
                 All
               </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  key={user.id}
+                  data-cy="FilterUser"
+                  href="#/"
+                  onClick={() => handleUserFilterChange(user.name)}
+                  className={selectedUser === user.name ? 'is-active' : ''}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
