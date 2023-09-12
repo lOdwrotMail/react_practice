@@ -83,7 +83,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Filter by owner', () => {
+  describe('Filter by owner', () => {
     it('should have a link per existing user', () => {
       userFilter.users().should('have.length', 4);
 

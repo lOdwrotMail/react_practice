@@ -5,37 +5,42 @@ import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 
-const products = productsFromServer.map((product) => {
-  const category = categoriesFromServer
-    // eslint-disable-next-line no-shadow
-    .find(category => category.id === product.categoryId);
-  // eslint-disable-next-line no-shadow
-  const user = usersFromServer.find(user => user.id === category.ownerId);
-
-  if (!category || !user) {
-    return null;
-  }
-
-  return {
-    id: product.id,
-    name: product.name,
-    category: {
-      icon: category.icon,
-      title: category.title,
-    },
-    user: {
-      name: user.name,
-      sex: user.sex,
-    },
-  };
-});
-
 export const App = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const toggleUserFilter = (userId) => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
   };
+
+  const filteredProducts = productsFromServer
+    .map((product) => {
+      const category = categoriesFromServer.find(
+        // eslint-disable-next-line no-shadow
+        category => category.id === product.categoryId,
+      );
+      // eslint-disable-next-line no-shadow
+      const user = usersFromServer.find(user => user.id === category.ownerId);
+
+      if (!category || !user) {
+        return null;
+      }
+
+      return {
+        id: product.id,
+        name: product.name,
+        category: {
+          icon: category.icon,
+          title: category.title,
+        },
+        user: {
+          id: user.id, // Add user ID
+          name: user.name,
+          sex: user.sex,
+        },
+      };
+    })
+    // eslint-disable-next-line max-len
+    .filter(product => (selectedUserId ? product.user.id === selectedUserId : true));
 
   return (
     <div className="section">
@@ -83,7 +88,6 @@ export const App = () => {
                 </span>
 
                 <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
@@ -152,7 +156,7 @@ export const App = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map(product => (
+              {filteredProducts.map(product => (
                 <tr key={product.id} data-cy="Product">
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}
@@ -168,8 +172,10 @@ export const App = () => {
                   <td
                     data-cy="ProductUser"
                     className={
-            product.user.sex === 'm' ? 'has-text-link' : 'has-text-danger'
-          }
+                      product.user.sex === 'm'
+                        ? 'has-text-link'
+                        : 'has-text-danger'
+                    }
                   >
                     {product.user.name}
                   </td>
