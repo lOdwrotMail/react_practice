@@ -44,14 +44,21 @@ export const App = () => {
 
         return true;
       }));
-  }, [selectedUser, input]);
+  }, [selectedUser, input, selectedCategories]);
+
+  useEffect(() => {
+    if (selectedCategories.length !== 0) {
+      setFilters(filters.filter(product => categories
+        .some(category => category.id === product.categoryId)));
+    }
+  }, [selectedCategories]);
 
   const categorySelect = (cat) => {
     if (selectedCategories.some(category => category.id === cat.id)) {
-      setSelectedCategories(selectedCategories
+      setSelectedCategories(prevCategories => prevCategories
         .filter(category => category.id !== cat.id));
     } else {
-      setSelectedCategories([...selectedCategories, cat]);
+      setSelectedCategories(prevCategories => [...prevCategories, cat]);
     }
   };
 
@@ -199,7 +206,13 @@ export const App = () => {
 
             <div className="panel-block">
               <a
-                onClick={() => setFilters(products)}
+                onClick={() => {
+                  setFilters(products);
+                  setInput('');
+                  setSelectedCategories([]);
+                  setSelectedUser([]);
+                }
+                }
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
