@@ -18,10 +18,15 @@ const products = productsFromServer.map(({ categoryId, ...product }) => {
 
 export const App = () => {
   const [chosenUserId, setchosenUserId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredProducts = chosenUserId
     ? products.filter(product => product.user.id === chosenUserId)
     : products;
+
+  const displayedProducts = filteredProducts.filter(
+    product => product.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   return (
     <div className="section">
@@ -37,8 +42,8 @@ export const App = () => {
                 data-cy="FilterAllUsers"
                 href="#/"
                 className={!chosenUserId ? 'is-active' : ''}
-                onClick={(e) => {
-                  e.preventDefault();
+                onClick={(event) => {
+                  event.preventDefault();
                   setchosenUserId(null);
                 }}
               >
@@ -51,8 +56,8 @@ export const App = () => {
                   data-cy="FilterUser"
                   href="#/"
                   className={chosenUserId === user.id ? 'is-active' : ''}
-                  onClick={(e) => {
-                    e.preventDefault();
+                  onClick={(event) => {
+                    event.preventDefault();
                     setchosenUserId(user.id);
                   }}
                 >
@@ -68,7 +73,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -76,11 +82,14 @@ export const App = () => {
                 </span>
 
                 <span className="icon is-right">
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
+                  {searchQuery && (
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setSearchQuery('')}
+                    />
+                  )}
                 </span>
               </p>
             </div>
@@ -119,7 +128,7 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {filteredProducts.length === 0 ? (
+          {displayedProducts.length === 0 ? (
             <p data-cy="NoMatchingMessage">
               No products matching selected criteria
             </p>
@@ -177,7 +186,7 @@ export const App = () => {
               </thead>
 
               <tbody>
-                {filteredProducts.map(product => (
+                {displayedProducts.map(product => (
                   <tr key={product.id} data-cy="Product">
                     <td className="has-text-weight-bold" data-cy="ProductId">
                       {product.id}
@@ -191,7 +200,7 @@ export const App = () => {
                     <td
                       data-cy="ProductUser"
                       className={
-                        product.user.gender === 'male'
+                        product.user.sex === 'm'
                           ? 'has-text-link'
                           : 'has-text-danger'
                       }
