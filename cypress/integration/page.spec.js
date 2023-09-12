@@ -146,7 +146,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Filter by Product name', () => {
+  describe('Filter by Product name', () => {
     it('should have an empty field by default', () => {
       nameFilter.field().should('have.value', '');
     });

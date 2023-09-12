@@ -7,9 +7,14 @@ import productsFromServer from './api/products';
 
 export const App = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [searchValue, setSearchValue] = useState('');
 
   const toggleUserFilter = (userId) => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
+  };
+
+  const clearSearch = () => {
+    setSearchValue('');
   };
 
   const filteredProducts = productsFromServer
@@ -33,14 +38,15 @@ export const App = () => {
           title: category.title,
         },
         user: {
-          id: user.id, // Add user ID
+          id: user.id,
           name: user.name,
           sex: user.sex,
         },
       };
     })
-    // eslint-disable-next-line max-len
-    .filter(product => (selectedUserId ? product.user.id === selectedUserId : true));
+    .filter(product => (!selectedUserId || product.user.id === selectedUserId)
+      && (!searchValue
+        || product.name.toLowerCase().includes(searchValue.toLowerCase())));
 
   return (
     <div className="section">
@@ -74,27 +80,25 @@ export const App = () => {
             </p>
 
             <div className="panel-block">
-              <p className="control has-icons-left has-icons-right">
+              <div className="control">
                 <input
                   data-cy="SearchField"
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchValue}
+                  onChange={e => setSearchValue(e.target.value)}
                 />
-
-                <span className="icon is-left">
-                  <i className="fas fa-search" aria-hidden="true" />
-                </span>
-
-                <span className="icon is-right">
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
-              </p>
+              </div>
+              {searchValue && (
+              <button
+                type="button"
+                className="delete is-small"
+                onClick={clearSearch}
+                aria-label="Clear Search"
+                data-cy="ClearButton"
+              />
+              )}
             </div>
 
             <div className="panel-block is-flex-wrap-wrap">
@@ -143,46 +147,50 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Product</th>
-                <th>Category</th>
-                <th>User</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map(product => (
-                <tr key={product.id} data-cy="Product">
-                  <td className="has-text-weight-bold" data-cy="ProductId">
-                    {product.id}
-                  </td>
-                  <td data-cy="ProductName">{product.name}</td>
-                  <td data-cy="ProductCategory">
-                    {product.category.icon}
-                    {' '}
-                    -
-                    {' '}
-                    {product.category.title}
-                  </td>
-                  <td
-                    data-cy="ProductUser"
-                    className={
-                      product.user.sex === 'm'
-                        ? 'has-text-link'
-                        : 'has-text-danger'
-                    }
-                  >
-                    {product.user.name}
-                  </td>
+          {filteredProducts.length > 0 ? (
+            <table
+              data-cy="ProductTable"
+              className="table is-striped is-narrow is-fullwidth"
+            >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>User</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredProducts.map(product => (
+                  <tr key={product.id} data-cy="Product">
+                    <td className="has-text-weight-bold" data-cy="ProductId">
+                      {product.id}
+                    </td>
+                    <td data-cy="ProductName">{product.name}</td>
+                    <td data-cy="ProductCategory">
+                      {product.category.icon}
+                      {' '}
+                      -
+                      {' '}
+                      {product.category.title}
+                    </td>
+                    <td
+                      data-cy="ProductUser"
+                      className={
+                product.user.sex === 'm'
+                  ? 'has-text-link'
+                  : 'has-text-danger'
+              }
+                    >
+                      {product.user.name}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No matching products found.</p>
+          )}
         </div>
       </div>
     </div>
