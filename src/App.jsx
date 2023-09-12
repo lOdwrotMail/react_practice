@@ -1,9 +1,11 @@
-import React from 'react';
+/* eslint-disable max-len */
+/* eslint-disable react/jsx-indent */
+import React, { useState } from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -12,7 +14,32 @@ import './App.scss';
 //   return null;
 // });
 
-export const App = () => (
+export const App = () => {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showAllProducts, setShowAllProducts] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
+
+  const productsWithCategories = productsFromServer.map((product) => {
+    const category = categoriesFromServer.find(c => c.id === product.categoryId);
+
+    return {
+      ...product,
+      category,
+    };
+  });
+
+  const doesProductMatchSearch = (product, searchValue) => {
+    if (!searchValue) {
+      return true;
+    }
+
+    const productNameLower = product.name.toLowerCase();
+    const searchValueLower = searchValue.toLowerCase();
+
+    return productNameLower.includes(searchValueLower);
+  };
+
+  return (
   <div className="section">
     <div className="container">
       <h1 className="title">Product Categories</h1>
@@ -25,6 +52,11 @@ export const App = () => (
             <a
               data-cy="FilterAllUsers"
               href="#/"
+              className={showAllProducts ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser(null);
+                setShowAllProducts(true);
+              }}
             >
               All
             </a>
@@ -32,6 +64,12 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
+              className={selectedUser === 'Roma' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Roma');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 1
             </a>
@@ -39,7 +77,12 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
-              className="is-active"
+              className={selectedUser === 'Anna' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Anna');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 2
             </a>
@@ -47,8 +90,26 @@ export const App = () => (
             <a
               data-cy="FilterUser"
               href="#/"
+              className={selectedUser === 'Max' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('Max');
+                setShowAllProducts(null);
+              }
+              }
             >
               User 3
+            </a>
+            <a
+              data-cy="FilterUser"
+              href="#/"
+              className={selectedUser === 'John' ? 'is-active' : ''}
+              onClick={() => {
+                setSelectedUser('John');
+                setShowAllProducts(null);
+              }
+              }
+            >
+              User 4
             </a>
           </p>
 
@@ -59,21 +120,24 @@ export const App = () => (
                 type="text"
                 className="input"
                 placeholder="Search"
-                value="qwe"
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
               />
 
               <span className="icon is-left">
                 <i className="fas fa-search" aria-hidden="true" />
               </span>
 
-              <span className="icon is-right">
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <button
-                  data-cy="ClearButton"
-                  type="button"
-                  className="delete"
-                />
-              </span>
+              {searchValue && (
+                <span className="icon is-right">
+                  <button
+                    data-cy="ClearButton"
+                    type="button"
+                    className="delete"
+                    onClick={() => setSearchValue('')}
+                  />
+                </span>
+              )}
             </p>
           </div>
 
@@ -192,56 +256,43 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
+            {productsWithCategories
+              .filter((product) => {
+                const owner = usersFromServer.find(user => user.id === product.category.ownerId);
 
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+                return showAllProducts || selectedUser === owner.name;
+              })
+              .filter(product => doesProductMatchSearch(product, searchValue))
+              .map(product => (
+              <tr key={product.id} data-cy="Product">
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {product.id}
+                </td>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
+                <td data-cy="ProductName">{product.name}</td>
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
+                <td data-cy="ProductCategory">
+                {(() => {
+                  const foundCategory = categoriesFromServer.find(category => category.id === product.categoryId);
 
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+                  return foundCategory ? foundCategory.icon : 'no category found';
+                })()}
+                </td>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
+                <td
+                  data-cy="ProductUser"
+                  className={(usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId).sex) === 'm'
+                    ? 'has-text-link'
+                    : 'has-text-danger'}
+                >
+                  {usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId)?.name || 'No user found'}
+                </td>
+              </tr>
+              ))}
           </tbody>
         </table>
       </div>
     </div>
   </div>
-);
+  );
+};
