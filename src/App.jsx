@@ -1,247 +1,183 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import './App.scss';
+import { ProductsTable } from './components/ProductsTable';
+import { Filters } from './components/Filters';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+const categories = categoriesFromServer;
+const users = usersFromServer;
 
-//   return null;
-// });
+const products = productsFromServer.map((product) => {
+  const category = categoriesFromServer
+    .find(cat => cat.id === product.categoryId);
+  const user = usersFromServer.find(us => us.id === category.ownerId);
 
-export const App = () => (
-  <div className="section">
-    <div className="container">
-      <h1 className="title">Product Categories</h1>
+  return {
+    ...product,
+    category,
+    user,
+  };
+});
 
-      <div className="block">
-        <nav className="panel">
-          <p className="panel-heading">Filters</p>
+export const App = () => {
+  const [selectedUser, setSelectedUser] = useState({});
+  const [input, setInput] = useState('');
+  const [filters, setFilters] = useState(products);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [sortBy, setSortBy] = useState('');
+  const [isReversed, setIsReversed] = useState(false);
+  const [sorted, setSorted] = useState(filters);
 
-          <p className="panel-tabs has-text-weight-bold">
-            <a
-              data-cy="FilterAllUsers"
-              href="#/"
-            >
-              All
-            </a>
+  const filteredProducts = (selUser, In, selCat) => {
+    let filteredData = products;
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 1
-            </a>
+    if (Object.keys(selUser).length !== 0) {
+      filteredData = filteredData
+        .filter(product => product.user.id === selUser.id);
+    }
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-              className="is-active"
-            >
-              User 2
-            </a>
+    if (input.length > 0) {
+      filteredData = filteredData
+        .filter(prod => prod.name.toLowerCase().includes(In.toLowerCase()));
+    }
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 3
-            </a>
-          </p>
+    if (selCat.length > 0) {
+      filteredData = filteredData.filter(product => selectedCategories
+        .some(cat => cat.title === product.category.title));
+    }
 
-          <div className="panel-block">
-            <p className="control has-icons-left has-icons-right">
-              <input
-                data-cy="SearchField"
-                type="text"
-                className="input"
-                placeholder="Search"
-                value="qwe"
-              />
+    return setFilters(filteredData);
+  };
 
-              <span className="icon is-left">
-                <i className="fas fa-search" aria-hidden="true" />
-              </span>
+  const selectSortBy = (e) => {
+    setSortBy((prevState) => {
+      if (prevState === e && isReversed === false) {
+        setIsReversed(true);
 
-              <span className="icon is-right">
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <button
-                  data-cy="ClearButton"
-                  type="button"
-                  className="delete"
-                />
-              </span>
-            </p>
-          </div>
+        return e;
+      }
 
-          <div className="panel-block is-flex-wrap-wrap">
-            <a
-              href="#/"
-              data-cy="AllCategories"
-              className="button is-success mr-6 is-outlined"
-            >
-              All
-            </a>
+      if (prevState === e && isReversed === true) {
+        setIsReversed(false);
 
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 1
-            </a>
+        return '';
+      }
 
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 2
-            </a>
+      setIsReversed(false);
 
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 3
-            </a>
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 4
-            </a>
-          </div>
+      return e;
+    });
+  };
 
-          <div className="panel-block">
-            <a
-              data-cy="ResetAllButton"
-              href="#/"
-              className="button is-link is-outlined is-fullwidth"
-            >
-              Reset all filters
-            </a>
-          </div>
-        </nav>
-      </div>
+  const sortTable = (sort, reverse) => {
+    let sortedTable;
 
-      <div className="box table-container">
-        <p data-cy="NoMatchingMessage">
-          No products matching selected criteria
-        </p>
+    switch (sort) {
+      case 'id':
+        sortedTable = reverse
+          ? setSorted([...filters].sort((a, b) => +a.id - +b.id).reverse())
+          : setSorted([...filters].sort((a, b) => +a.id - +b.id));
+        break;
+      case 'product':
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.name.localeCompare(b.name)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.name.localeCompare(b.name)));
+        break;
+      case 'category':
 
-        <table
-          data-cy="ProductTable"
-          className="table is-striped is-narrow is-fullwidth"
-        >
-          <thead>
-            <tr>
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  ID
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.category.title
+              .localeCompare(b.category.title)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.category.title
+              .localeCompare(b.category.title)));
+        break;
+      case 'user':
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
-                </span>
-              </th>
+        sortedTable = reverse
+          ? setSorted([...filters]
+            .sort((a, b) => a.user.name.localeCompare(b.user.name)).reverse())
+          : setSorted([...filters]
+            .sort((a, b) => a.user.name.localeCompare(b.user.name)));
+        break;
+      default:
+        sortedTable = setSorted(filters);
+    }
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Product
+    return sortedTable;
+  };
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-down" />
-                    </span>
-                  </a>
-                </span>
-              </th>
+  useMemo(() => sortTable(sortBy, isReversed), [sortBy, filters, isReversed]);
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Category
+  useMemo(() => filteredProducts(
+    selectedUser, input, selectedCategories,
+  ), [selectedUser, input, selectedCategories]);
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-up" />
-                    </span>
-                  </a>
-                </span>
-              </th>
+  const categorySelect = (cat) => {
+    setSelectedCategories((prevState) => {
+      if (cat.length === 0) {
+        return [];
+      }
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  User
+      if (prevState.includes(cat)) {
+        return prevState.filter(selectedCat => selectedCat.id !== cat.id);
+      }
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-            </tr>
-          </thead>
+      return [...prevState, cat];
+    });
+  };
 
-          <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
+  const usersOnClickHandle = (e) => {
+    setSelectedUser(e);
+  };
 
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+  const inputOnChangeHandle = (e) => {
+    setInput(e);
+  };
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
+  return (
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
+    <div className="section">
+      <div className="container">
+        <h1 className="title">Product Categories</h1>
+        <div className="block">
+          <Filters
+            usersOnClickHandle={usersOnClickHandle}
+            inputOnChangeHandle={inputOnChangeHandle}
+            filteredProducts={filteredProducts}
+            categorySelect={categorySelect}
+            users={users}
+            selectedUser={selectedUser}
+            input={input}
+            categories={categories}
+            selectedCategories={selectedCategories}
+          />
 
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+        </div>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
+        <div className="box table-container">
+          {filters.length === 0
+           && (
+           <p data-cy="NoMatchingMessage">
+             No products matching selected criteria
+           </p>
+           )
+          }
+          <ProductsTable
+            filters={sorted}
+            selectSortBy={selectSortBy}
+            sortBy={sortBy}
+            isReversed={isReversed}
+          />
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
