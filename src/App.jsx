@@ -7,6 +7,7 @@ import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
 import { ProductList } from './components/ProductList';
 import { UserList } from './components/UserList';
+import { CategoriesList } from './components/CategoriesList';
 
 const products = productsFromServer.map((product) => {
   const category
@@ -23,6 +24,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState('all');
   const [textFilter, setTextFilter] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   return (
 
@@ -71,46 +73,11 @@ export const App = () => {
               </p>
             </div>
 
-            <div className="panel-block is-flex-wrap-wrap">
-              <a
-                href="#/"
-                data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
-              >
-                All
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
-            </div>
+            <CategoriesList
+              categories={categoriesFromServer}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
 
             <div className="panel-block">
               <a
@@ -120,6 +87,7 @@ export const App = () => {
                 onClick={() => {
                   setSelectedUser('all');
                   setTextFilter('');
+                  setSelectedCategory('all');
                 }}
               >
                 Reset all filters
@@ -132,6 +100,7 @@ export const App = () => {
           products={products}
           selectedUser={selectedUser}
           textFilter={textFilter}
+          selectedCategory={selectedCategory}
         />
 
       </div>

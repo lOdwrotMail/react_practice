@@ -1,5 +1,6 @@
 /* eslint-disable arrow-body-style */
-export const ProductList = ({ products, selectedUser, textFilter }) => {
+export const ProductList = ({ products,
+  selectedUser, textFilter, selectedCategory }) => {
   const filteredProducts = (prod) => {
     let prodCopy = [...prod];
 
@@ -11,6 +12,11 @@ export const ProductList = ({ products, selectedUser, textFilter }) => {
     if (textFilter !== '') {
       prodCopy = prodCopy.filter(product => product
         .name.toLowerCase().includes(textFilter.toLowerCase()));
+    }
+
+    if (selectedCategory !== 'all') {
+      prodCopy = prodCopy.filter(product => product.categoryId
+        === selectedCategory.id);
     }
 
     return prodCopy;
