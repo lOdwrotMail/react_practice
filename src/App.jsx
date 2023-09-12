@@ -1,9 +1,11 @@
+/* eslint-disable max-len */
+/* eslint-disable react/jsx-indent */
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -192,53 +194,32 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
+            {productsFromServer.map(product => (
+              <tr key={product.id} data-cy="Product">
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {product.id}
+                </td>
 
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+                <td data-cy="ProductName">{product.name}</td>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
+                <td data-cy="ProductCategory">
+                {(() => {
+                  const foundCategory = categoriesFromServer.find(category => category.id === product.categoryId);
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
+                  return foundCategory ? foundCategory.icon : 'no category found';
+                })()}
+                </td>
 
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
+                <td
+                  data-cy="ProductUser"
+                  className={(usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId).sex) === 'm'
+                    ? 'has-text-link'
+                    : 'has-text-danger'}
+                >
+                  {usersFromServer.find(user => user.id === (categoriesFromServer.find(category => category.id === product.categoryId)).ownerId)?.name || 'No user found'}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
