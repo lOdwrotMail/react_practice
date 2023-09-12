@@ -34,6 +34,11 @@ export const App = () => {
 
   console.log(filteredProducts);
 
+  const resetFilters = () => {
+    setUserFilter(null);
+    // add other resets here
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -137,6 +142,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={resetFilters}
               >
                 Reset all filters
               </a>
