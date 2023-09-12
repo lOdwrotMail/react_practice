@@ -258,14 +258,26 @@ import productsFromServer from './api/products';
 import usersFromServer from './api/users';
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null); // Состояние для выбранного пользователя
+  const [searchText, setSearchText] = useState(''); // Состояние для введенного текста поиска
 
+  // Функция для обновления выбранного пользователя
   const handleUserFilter = (userId) => {
     setSelectedUser(userId);
   };
 
+  // Функция для проверки, выбран ли пользователь
   const isUserActive = (userId) => {
     return selectedUser === userId;
+  };
+
+  // Функция для обновления введенного текста поиска
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const clearSearchText = () => {
+    setSearchText('');
   };
 
   const renderUserFilters = () => {
@@ -326,8 +338,10 @@ export const App = () => {
     return null;
   };
 
-  // eslint-disable-next-line max-len
-  const productRows = productsFromServer.map((product) => renderProductRow(product.id));
+  const filteredProductRows = productsFromServer
+    // eslint-disable-next-line max-len
+    .filter((product) => product.name.toLowerCase().includes(searchText.toLowerCase()))
+    .map((product) => renderProductRow(product.id));
 
   return (
     <div className="section">
@@ -336,6 +350,32 @@ export const App = () => {
         <div className="block">
           <nav className="panel">
             {renderUserFilters()}
+            <div className="panel-block">
+              <p className="control has-icons-left has-icons-right">
+                <input
+                  data-cy="SearchField"
+                  type="text"
+                  className="input"
+                  placeholder="Search"
+                  value={searchText}
+                  onChange={handleSearchTextChange}
+                />
+                <span className="icon is-left">
+                  <i className="fas fa-search" aria-hidden="true" />
+                </span>
+                {searchText && (
+                  <span className="icon is-right">
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete is-small"
+                      onClick={clearSearchText}
+                    />
+                  </span>
+                )}
+              </p>
+            </div>
+            {/* Другие фильтры и JSX-код */}
           </nav>
         </div>
         <div className="box table-container">
@@ -391,7 +431,13 @@ export const App = () => {
               </tr>
             </thead>
             <tbody>
-              {productRows}
+              {filteredProductRows.length > 0 ? (
+                filteredProductRows
+              ) : (
+                <tr>
+                  <td colSpan="4">No products match the search criteria</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
