@@ -16,6 +16,8 @@ const products = productsFromServer.map((product) => {
   return [category, user];
 });
 
+// 4 na 6 zadan zrobione
+
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [query, setQuery] = useState('');
