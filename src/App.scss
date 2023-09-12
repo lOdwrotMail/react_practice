@@ -1,18 +1,16 @@
 $maleColor: #007bff;
 $femaleColor: #ff69b4;
 
-.panel-block {
-  &.is-active {
-    &.male {
-      background-color: $maleColor;
-      color: white;
-    }
-    &.female {
-      background-color: $femaleColor;
-      color: white;
-    }
-  }
+.male {
+  background-color: $maleColor;
+  color: white;
 }
+
+.female {
+  background-color: $femaleColor;
+  color: white;
+}
+
 iframe {
   display: none;
-};
+}
