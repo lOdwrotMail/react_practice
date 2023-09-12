@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import cn from 'classnames';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -12,9 +13,89 @@ import './App.scss';
 //   return null;
 // });
 
-export const App = () => (
-  <div className="section">
-    <div className="container">
+function getCategory(categoryId) {
+  const foundCategory = categoriesFromServer
+    .find(category => category.id === categoryId);
+
+  return foundCategory;
+}
+
+function getOwner(userId) {
+  const foundUser = usersFromServer.find(user => user.id === userId);
+
+  return foundUser;
+}
+
+const productList = productsFromServer.map(product => ({
+  ...product,
+  category: getCategory(product.categoryId),
+  owner: getOwner(getCategory(product.categoryId).ownerId),
+
+}));
+
+export const App = () => {
+  const [findUser,SetFindUser] = useState('All');
+
+  const [all, SetAll] = useState(true);
+  const [grocery, SetGrocery] = useState(false);
+  const [drinks, SetDrinks] = useState(false);
+  const [fruits, SetFruits] = useState(false);
+  const [electronics, SetElectronics] = useState(false);
+  const [clothes, SetClothes] = useState(false);
+
+  const sortByUser = (user) => {
+    SetFindUser(user);
+  };
+
+  const allButtonSwitch = () => {
+    SetAll(true);
+    SetGrocery(false);
+    SetDrinks(false);
+    SetFruits(false);
+    SetElectronics(false);
+    SetClothes(false);
+  };
+
+  const grocerySwitch = () => {
+    SetGrocery(!grocery);
+    SetAll(false);
+  };
+
+  const drinksSwitch = () => {
+    SetDrinks(!drinks);
+    SetAll(false);
+  };
+
+  const fruitsSwitch = () => {
+    SetFruits(!fruits);
+    SetAll(false);
+  };
+
+  const electronicsSwitch = () => {
+    SetElectronics(!electronics);
+    SetAll(false);
+  };
+
+  const clothesSwitch = () => {
+    SetClothes(!clothes);
+    SetAll(false);
+  };
+
+  const reset = () => {
+    SetFindUser('All');
+    allButtonSwitch();
+  };
+
+  const userAll = () => {
+    SetFindUser()
+  };
+
+
+
+  return (
+
+    <div className="section">
+      <div className="container">
       <h1 className="title">Product Categories</h1>
 
       <div className="block">
@@ -25,6 +106,8 @@ export const App = () => (
             <a
               data-cy="FilterAllUsers"
               href="#/"
+
+
             >
               All
             </a>
@@ -33,22 +116,23 @@ export const App = () => (
               data-cy="FilterUser"
               href="#/"
             >
-              User 1
+              Roma
             </a>
 
             <a
               data-cy="FilterUser"
               href="#/"
               className="is-active"
+
             >
-              User 2
+              Anna
             </a>
 
             <a
               data-cy="FilterUser"
               href="#/"
             >
-              User 3
+              Max
             </a>
           </p>
 
@@ -81,40 +165,67 @@ export const App = () => (
             <a
               href="#/"
               data-cy="AllCategories"
-              className="button is-success mr-6 is-outlined"
+              onClick={allButtonSwitch}
+              className={cn('button is-success mr-6', {
+                'is-outlined': all !== true,
+              })}
+
             >
               All
             </a>
 
             <a
               data-cy="Category"
-              className="button mr-2 my-1 is-info"
+              className={cn('button mr-2', {
+                'my-1 is-info': grocery === true,
+              })}
               href="#/"
+              onClick={grocerySwitch}
             >
-              Category 1
+              Grocery
             </a>
 
             <a
               data-cy="Category"
-              className="button mr-2 my-1"
+              className={cn('button mr-2', {
+                'my-1 is-info': drinks === true,
+              })}
               href="#/"
+              onClick={drinksSwitch}
             >
-              Category 2
+              Drinks
             </a>
 
             <a
               data-cy="Category"
-              className="button mr-2 my-1 is-info"
+              className={cn('button mr-2', {
+                'my-1 is-info': fruits === true,
+              })}
               href="#/"
+              onClick={fruitsSwitch}
             >
-              Category 3
+              Fruits
             </a>
             <a
               data-cy="Category"
-              className="button mr-2 my-1"
+              className={cn('button mr-2', {
+                'my-1 is-info': electronics === true,
+              })}
               href="#/"
+              onClick={electronicsSwitch}
             >
-              Category 4
+              Electronics
+            </a>
+
+            <a
+              data-cy="Category"
+              className={cn('button mr-2', {
+                'my-1 is-info': clothes === true,
+              })}
+              href="#/"
+              onClick={clothesSwitch}
+            >
+              Clothes
             </a>
           </div>
 
@@ -123,6 +234,7 @@ export const App = () => (
               data-cy="ResetAllButton"
               href="#/"
               className="button is-link is-outlined is-fullwidth"
+              onClick={reset}
             >
               Reset all filters
             </a>
@@ -192,56 +304,33 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
 
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+            {productList.map(product => (
+              <tr data-cy="Product">
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {product.id}
+                </td>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
+                <td data-cy="ProductName">{product.name}</td>
+                <td data-cy="ProductCategory">
+                  {product.category.icon} - {product.category.title}</td>
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
+                <td
+                  data-cy="ProductUser"
+                  className="has-text-link"
+                >
+                {product.owner.name}
+                </td>
+              </tr>
+            ))}
 
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-);
+
+//dsddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+
+
+)};
