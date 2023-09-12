@@ -18,12 +18,17 @@ const products = productsFromServer.map(({ categoryId, ...product }) => {
 
 export const App = () => {
   const [chosenUserId, setChosenUserId] = useState(null);
+  const [chosenCategories, setChosenCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredProducts = chosenUserId
+  const filteredByUserProducts = chosenUserId
     ? products.filter(product => product.user.id === chosenUserId)
     : products;
 
+  const filteredProducts = chosenCategories.length
+    ? filteredByUserProducts.filter(
+      product => chosenCategories.includes(product.category.id),
+    ) : filteredByUserProducts;
   const displayedProducts = filteredProducts.filter(
     product => product.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -107,8 +112,22 @@ export const App = () => {
                 <a
                   key={category.id}
                   data-cy="Category"
-                  className="button mr-2 my-1 is-info"
+                  className={`button mr-2 my-1 ${chosenCategories.includes(category.id) ? 'is-info' : ''}`}
                   href="#/"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (chosenCategories.includes(category.id)) {
+                      setChosenCategories(
+                        prevState => prevState.filter(
+                          id => id !== category.id,
+                        ),
+                      );
+                    } else {
+                      setChosenCategories(
+                        prevState => [...prevState, category.id],
+                      );
+                    }
+                  }}
                 >
                   {category.title}
                 </a>
