@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState } from 'react';
 import './App.scss';
 
@@ -22,6 +21,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   const filterList = () => {
     let productCopy = [...products];
@@ -35,6 +35,12 @@ export const App = () => {
       productCopy = productCopy
         .filter(product => product.name.toLowerCase()
           .includes(inputValue.toLowerCase().trim()));
+    }
+
+    if (selectedCategories.length !== 0) {
+      productCopy = productCopy
+        .filter(product => selectedCategories
+          .some(category => category === product.category.title));
     }
 
     return productCopy;
@@ -115,41 +121,29 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={classNames(['button', 'is-success', 'mr-6'],
+                  { 'is-outlined': selectedCategories.length !== 0 })}
+                onClick={() => setSelectedCategories([])}
               >
                 All
               </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(category => (
+                <a
+                  data-cy="Category"
+                  className={classNames(['button', 'mr-2', 'my-1'],
+                    { 'is-info': selectedCategories.includes(category.title) })}
+                  href="#/"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setSelectedCategories(
+                      pervState => [...pervState, category.title],
+                    );
+                  }}
+                  key={category.id}
+                >
+                  {category.title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
@@ -161,6 +155,7 @@ export const App = () => {
                   event.preventDefault();
                   setInputValue('');
                   setSelectedUser('');
+                  setSelectedCategories([]);
                 }}
               >
                 Reset all filters
