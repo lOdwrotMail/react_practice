@@ -1,4 +1,3 @@
-/* eslint-disable arrow-body-style */
 import React, { useState } from 'react';
 import './App.scss';
 
@@ -25,6 +24,8 @@ export const App = () => {
   const [selectedUser, setSelectedUser] = useState('all');
   const [textFilter, setTextFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('');
+  const [order, setOrder] = useState('none');
 
   return (
 
@@ -88,6 +89,8 @@ export const App = () => {
                   setSelectedUser('all');
                   setTextFilter('');
                   setSelectedCategory('all');
+                  setOrder('none');
+                  setSortBy('');
                 }}
               >
                 Reset all filters
@@ -101,6 +104,10 @@ export const App = () => {
           selectedUser={selectedUser}
           textFilter={textFilter}
           selectedCategory={selectedCategory}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          order={order}
+          setOrder={setOrder}
         />
 
       </div>

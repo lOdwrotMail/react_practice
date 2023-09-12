@@ -15,6 +15,7 @@ export const CategoriesList = ({ categories,
 
       {categories.map(category => (
         <a
+          key={category.id}
           data-cy="Category"
           className={selectedCategory === category
             ? 'button mr-2 my-1 is-info' : 'button mr-2 my-1'}
