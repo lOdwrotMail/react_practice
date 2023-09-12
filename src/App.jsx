@@ -1,247 +1,153 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+export const App = () => {
+  const [selectedUser, setSelectedUser] = useState('All');
+  const [productNameFilter, setProductNameFilter] = useState('');
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+  const filteredProducts = productsFromServer
+    .filter((product) => {
+      const category
+      = categoriesFromServer.find(cat => cat.id === product.categoryId);
+      const user = usersFromServer.find(usr => usr.id === category.ownerId);
 
-//   return null;
-// });
+      return selectedUser === 'All' || user.name === selectedUser;
+    })
+    .filter(product => product
+      .name.toLowerCase().includes(productNameFilter.toLowerCase()));
 
-export const App = () => (
-  <div className="section">
-    <div className="container">
-      <h1 className="title">Product Categories</h1>
+  const uniqueUserNames
+  = [...new Set(usersFromServer.map(user => user.name))];
 
-      <div className="block">
-        <nav className="panel">
-          <p className="panel-heading">Filters</p>
+  uniqueUserNames.unshift('All');
 
-          <p className="panel-tabs has-text-weight-bold">
-            <a
-              data-cy="FilterAllUsers"
-              href="#/"
-            >
-              All
-            </a>
+  const handleUserChange = (event) => {
+    setSelectedUser(event.target.value);
+  };
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 1
-            </a>
+  const handleClearFilter = () => {
+    setProductNameFilter('');
+  };
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-              className="is-active"
-            >
-              User 2
-            </a>
+  const handleResetFilters = () => {
+    setSelectedUser('All');
+    setProductNameFilter('');
+  };
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 3
-            </a>
-          </p>
+  const products = filteredProducts.map((product) => {
+    const category
+    = categoriesFromServer.find(cat => cat.id === product.categoryId);
+    const user = usersFromServer.find(usr => usr.id === category.ownerId);
+    const ownerTextColorClass
+    = user.sex === 'm' ? 'has-text-link' : 'has-text-danger';
 
-          <div className="panel-block">
-            <p className="control has-icons-left has-icons-right">
-              <input
-                data-cy="SearchField"
-                type="text"
-                className="input"
-                placeholder="Search"
-                value="qwe"
-              />
-
-              <span className="icon is-left">
-                <i className="fas fa-search" aria-hidden="true" />
-              </span>
-
-              <span className="icon is-right">
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <button
-                  data-cy="ClearButton"
-                  type="button"
-                  className="delete"
-                />
-              </span>
-            </p>
-          </div>
-
-          <div className="panel-block is-flex-wrap-wrap">
-            <a
-              href="#/"
-              data-cy="AllCategories"
-              className="button is-success mr-6 is-outlined"
-            >
-              All
-            </a>
-
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 1
-            </a>
-
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 2
-            </a>
-
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 3
-            </a>
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 4
-            </a>
-          </div>
-
-          <div className="panel-block">
-            <a
-              data-cy="ResetAllButton"
-              href="#/"
-              className="button is-link is-outlined is-fullwidth"
-            >
-              Reset all filters
-            </a>
-          </div>
-        </nav>
-      </div>
-
-      <div className="box table-container">
-        <p data-cy="NoMatchingMessage">
-          No products matching selected criteria
-        </p>
-
-        <table
-          data-cy="ProductTable"
-          className="table is-striped is-narrow is-fullwidth"
+    return (
+      <tr key={product.id} data-cy="Product">
+        <td className="has-text-weight-bold" data-cy="ProductId">
+          {product.id}
+        </td>
+        <td data-cy="ProductName">{product.name}</td>
+        <td data-cy="ProductCategory">
+          {category.icon}
+          {` `}
+          -
+          {` `}
+          {category.title}
+        </td>
+        <td
+          data-cy="ProductUser"
+          className={`${user.name === selectedUser ? 'is-active ' : ''}${ownerTextColorClass}`}
         >
-          <thead>
-            <tr>
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  ID
+          {user.name}
+        </td>
+      </tr>
+    );
+  });
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
+  return (
+    <div className="section">
+      <div className="container">
+        <h1 className="title">Product Categories</h1>
+        <div className="box table-container">
+          <div className="field">
+            <label htmlFor="ownerFilter" className="label">
+              Filter by Owner:
+            </label>
+            <div className="control">
+              <div className="select">
+                <select
+                  id="ownerFilter"
+                  value={selectedUser}
+                  onChange={handleUserChange}
+                  data-cy="OwnerFilter"
+                >
+                  {uniqueUserNames.map(userName => (
+                    <option
+                      key={userName}
+                      value={userName}
+                      className={userName === selectedUser ? 'is-active' : ''}
+                    >
+                      {userName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="field">
+            <label htmlFor="productNameFilter" className="label">
+              Filter by Product Name:
+            </label>
+            <div className="control has-icons-left has-icons-right">
+              <input
+                type="text"
+                id="productNameFilter"
+                className="input"
+                placeholder="Enter product name"
+                value={productNameFilter}
+                onChange={e => setProductNameFilter(e.target.value)}
+                data-cy="ProductNameFilter"
+              />
+              {productNameFilter && (
+                <span className="icon is-small is-right">
+                  <button
+                    type="button"
+                    className="delete is-small"
+                    onClick={handleClearFilter}
+                    data-cy="ClearFilterButton"
+                  />
                 </span>
-              </th>
+              )}
+            </div>
+          </div>
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Product
+          {filteredProducts.length === 0 && (
+            <p data-cy="NoMatchingMessage" className="warnMessage">
+              No products matching selected criteria!
+            </p>
+          )}
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-down" />
-                    </span>
-                  </a>
-                </span>
-              </th>
+          <button
+            type="button"
+            className="button is-link"
+            onClick={handleResetFilters}
+            data-cy="ResetFiltersButton"
+          >
+            Reset All Filters
+          </button>
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Category
-
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-up" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  User
-
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
-
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
-
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <table
+            data-cy="ProductTable"
+            className="table is-striped is-narrow is-fullwidth"
+          >
+            <tbody>{products}</tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
